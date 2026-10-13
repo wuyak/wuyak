@@ -80,12 +80,17 @@ def fetch_projects(prs, token):
         with urlopen(Request(f"https://api.github.com/repos/{repo}", headers=headers), timeout=30) as response:
             projects[repo] = {"stars": json.load(response)["stargazers_count"], "badge": ""}
         if repo in PROJECT_BADGES:
+            cache = ROOT / 'assets/project-badges' / (repo.replace('/', '--') + '.svg')
+            if cache.exists():
+                projects[repo]['badge'] = 'data:image/svg+xml;base64,' + base64.b64encode(cache.read_bytes()).decode()
             try:
                 request = Request(PROJECT_BADGES[repo], headers={"User-Agent": "wuyak-profile-updater"})
                 with urlopen(request, timeout=20) as response:
                     badge = response.read()
                 if b"<svg" in badge:
                     projects[repo]["badge"] = "data:image/svg+xml;base64," + base64.b64encode(badge).decode()
+                    cache.parent.mkdir(parents=True, exist_ok=True)
+                    cache.write_bytes(badge)
             except Exception as error:
                 print(f"Optional project badge unavailable for {repo}: {type(error).__name__}")
     return projects
