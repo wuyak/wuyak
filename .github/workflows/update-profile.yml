@@ -10,8 +10,6 @@ on:
     paths:
       - README.md
       - scripts/**
-      - package.json
-      - package-lock.json
       - .github/workflows/update-profile.yml
 
 permissions:
@@ -29,32 +27,18 @@ jobs:
       - name: Check out profile
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '22'
-
       - name: Update merged public PRs
         env:
           PROFILE_USER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 scripts/update_prs.py
 
-      - name: Install graph generator
-        run: npm ci --ignore-scripts
-
-      - name: Generate Pac-Man contribution graphs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run generate:pacman
-
       - name: Validate generated SVGs
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import xml.etree.ElementTree as ET
-          for path in (Path('assets/pacman-light.svg'), Path('assets/pacman-dark.svg')):
+          for path in (Path('assets/contributions-light.svg'), Path('assets/contributions-dark.svg')):
               root = ET.parse(path).getroot()
               assert root.tag == '{http://www.w3.org/2000/svg}svg', path
               assert path.stat().st_size > 1000, path
@@ -64,8 +48,8 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add README.md assets/pacman-light.svg assets/pacman-dark.svg assets/contributions-light.svg assets/contributions-dark.svg assets/project-badges
+          git add README.md assets/contributions-light.svg assets/contributions-dark.svg assets/project-badges
           if ! git diff --cached --quiet; then
-            git commit -m 'chore: refresh contributions and Pac-Man graph'
+            git commit -m 'chore: refresh open-source contributions'
             git push
           fi

@@ -8,7 +8,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlencode, quote
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
@@ -63,12 +63,6 @@ def fetch_prs(username, token):
         result.append({"repo": repo, "number": item["number"], "title": item["title"],
                        "url": item["html_url"], "merged_at": merged})
     return sorted(result, key=lambda pr: (pr["merged_at"], pr["url"]), reverse=True)
-
-
-def link_text(value):
-    # Escape HTML and Markdown syntax so external PR titles stay literal table text.
-    value = html.escape(" ".join(value.split()), quote=False)
-    return re.sub(r"([\\`*_{}\[\]()#+.!|~])", lambda match: f"&#{ord(match[0])};", value)
 
 
 def fetch_projects(prs, token):
@@ -155,10 +149,7 @@ def render(prs, username):
     lines = ['<picture>',
              '  <source media="(prefers-color-scheme: dark)" srcset="./assets/contributions-dark.svg">',
              '  <img src="./assets/contributions-light.svg" width="100%" alt="已合并的开源 PR：项目、标题、项目 Star 数、类型和合并日期">',
-             '</picture>', '', f'[查看全部已合并的 Pull Requests →]({url})', '',
-             '<details>', '<summary>逐条打开 PR</summary>', '']
-    lines += [f'- [{link_text(pr["repo"])} #{pr["number"]} · {link_text(pr["title"])}]({pr["url"]})' for pr in prs]
-    lines += ['', '</details>']
+             '</picture>', '', f'[查看全部已合并的 Pull Requests →]({url})']
     return "\n".join(lines)
 
 
