@@ -146,10 +146,10 @@ def render_svg(prs, projects, dark=False):
 
 def render(prs, username):
     url = "https://github.com/pulls?" + urlencode({"q": search_query(username)})
-    lines = ['<picture>',
+    lines = [f'<a href="{url}">', '<picture>',
              '  <source media="(prefers-color-scheme: dark)" srcset="./assets/contributions-dark.svg">',
              '  <img src="./assets/contributions-light.svg" width="100%" alt="已合并的开源 PR：项目、标题、项目 Star 数、类型和合并日期">',
-             '</picture>', '', f'[查看全部已合并的 Pull Requests →]({url})']
+             '</picture>', '</a>', '', f'[查看全部已合并的 Pull Requests →]({url})']
     return "\n".join(lines)
 
 
