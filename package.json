@@ -1,0 +1,11 @@
+{
+  "name": "wuyak-profile",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:pacman": "node scripts/generate_pacman.mjs"
+  },
+  "dependencies": {
+    "pacman-contribution-graph": "3.0.0"
+  }
+}
